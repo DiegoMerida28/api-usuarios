@@ -2,17 +2,12 @@ const pool = require('./db');
 
 class UserRepositoryAdapter {
 
-    // Crear usuario
     async create(user) {
         const [resultado] = await pool.query(
             `INSERT INTO usuarios
             (nombre, email, password)
             VALUES (?, ?, ?)`,
-            [
-                user.nombre,
-                user.email,
-                user.password
-            ]
+            [user.nombre, user.email, user.password]
         );
 
         return {
@@ -22,8 +17,6 @@ class UserRepositoryAdapter {
         };
     }
 
-
-    // Obtener todos los usuarios
     async findAll() {
         const [usuarios] = await pool.query(
             `SELECT id, nombre, email
@@ -33,8 +26,6 @@ class UserRepositoryAdapter {
         return usuarios;
     }
 
-
-    // Buscar usuario por correo
     async findByEmail(email) {
         const [usuarios] = await pool.query(
             `SELECT *
@@ -46,11 +37,9 @@ class UserRepositoryAdapter {
         return usuarios[0];
     }
 
-
-    // Buscar usuario por ID
     async findById(id) {
         const [usuarios] = await pool.query(
-            `SELECT id, nombre, email, password
+            `SELECT id, nombre, email
              FROM usuarios
              WHERE id = ?`,
             [id]
@@ -59,28 +48,21 @@ class UserRepositoryAdapter {
         return usuarios[0];
     }
 
-
-    // Modificar usuario
     async update(id, user) {
-        const [resultado] = await pool.query(
+        await pool.query(
             `UPDATE usuarios
-             SET nombre = ?,
-                 email = ?,
-                 password = ?
+             SET nombre = ?, email = ?
              WHERE id = ?`,
-            [
-                user.nombre,
-                user.email,
-                user.password,
-                id
-            ]
+            [user.nombre, user.email, id]
         );
 
-        return resultado.affectedRows;
+        return {
+            id: Number(id),
+            nombre: user.nombre,
+            email: user.email
+        };
     }
 
-
-    // Eliminar usuario
     async delete(id) {
         const [resultado] = await pool.query(
             `DELETE FROM usuarios
@@ -88,7 +70,7 @@ class UserRepositoryAdapter {
             [id]
         );
 
-        return resultado.affectedRows;
+        return resultado.affectedRows > 0;
     }
 }
 

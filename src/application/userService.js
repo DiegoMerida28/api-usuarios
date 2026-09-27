@@ -7,23 +7,16 @@ class UserService {
         this.userRepository = userRepository;
     }
 
-
-    // CREAR USUARIO
     async crearUsuario(nombre, email, password) {
 
         if (!nombre || !email || !password) {
-            throw new Error(
-                'Todos los campos son obligatorios'
-            );
+            throw new Error('Todos los campos son obligatorios');
         }
 
-        const emailRegex =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(email)) {
-            throw new Error(
-                'El correo electrónico no es válido'
-            );
+            throw new Error('El correo electrónico no es válido');
         }
 
         if (password.length < 6) {
@@ -55,32 +48,19 @@ class UserService {
     }
 
 
-    // OBTENER USUARIOS
     async obtenerUsuarios() {
         return await this.userRepository.findAll();
     }
 
 
-    // MODIFICAR USUARIO
-    async modificarUsuario(id, nombre, email, password) {
-
-        // Buscar usuario
-        const usuarioActual =
-            await this.userRepository.findById(id);
-
-        if (!usuarioActual) {
-            throw new Error(
-                'Usuario no encontrado'
-            );
-        }
+    async actualizarUsuario(id, nombre, email) {
 
         if (!nombre || !email) {
             throw new Error(
-                'Nombre y email son obligatorios'
+                'Nombre y correo son obligatorios'
             );
         }
 
-        // Validar email
         const emailRegex =
             /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -90,63 +70,37 @@ class UserService {
             );
         }
 
-        // Verificar correo duplicado
+        const usuario =
+            await this.userRepository.findById(id);
+
+        if (!usuario) {
+            throw new Error(
+                'Usuario no encontrado'
+            );
+        }
+
         const usuarioConEmail =
             await this.userRepository.findByEmail(email);
 
         if (
             usuarioConEmail &&
-            usuarioConEmail.id != id
+            usuarioConEmail.id !== Number(id)
         ) {
             throw new Error(
                 'El correo electrónico ya está registrado'
             );
         }
 
-        let passwordFinal =
-            usuarioActual.password;
-
-        // Solo modificar contraseña si se envía una nueva
-        if (password) {
-
-            if (password.length < 6) {
-                throw new Error(
-                    'La contraseña debe tener mínimo 6 caracteres'
-                );
+        return await this.userRepository.update(
+            id,
+            {
+                nombre,
+                email
             }
-
-            passwordFinal =
-                await bcrypt.hash(password, 10);
-        }
-
-        const usuario = new User(
-            id,
-            nombre,
-            email,
-            passwordFinal
         );
-
-        const resultado =
-            await this.userRepository.update(
-                id,
-                usuario
-            );
-
-        if (resultado === 0) {
-            throw new Error(
-                'No se pudo modificar el usuario'
-            );
-        }
-
-        return {
-            id,
-            nombre,
-            email
-        };
     }
 
 
-    // ELIMINAR USUARIO
     async eliminarUsuario(id) {
 
         const usuario =
@@ -158,16 +112,11 @@ class UserService {
             );
         }
 
-        const resultado =
-            await this.userRepository.delete(id);
+        await this.userRepository.delete(id);
 
-        if (resultado === 0) {
-            throw new Error(
-                'No se pudo eliminar el usuario'
-            );
-        }
-
-        return true;
+        return {
+            mensaje: 'Usuario eliminado correctamente'
+        };
     }
 }
 

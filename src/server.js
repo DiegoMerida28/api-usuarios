@@ -1,19 +1,28 @@
 require('dotenv').config();
 
 const express = require('express');
+const cors = require('cors');
 
 const UserRepositoryAdapter =
     require('./infrastructure/userRepositoryAdapter');
-
 const UserService =
     require('./application/userService');
-
 const UserController =
     require('./interfaces/userController');
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
+
+
+// =============================
+// MIDDLEWARES
+// =============================
+
+// =============================
+// ARQUITECTURA HEXAGONAL
+// =============================
 
 const userRepository =
     new UserRepositoryAdapter();
@@ -24,40 +33,64 @@ const userService =
 const userController =
     new UserController(userService);
 
+
+// =============================
+// RUTA PRINCIPAL
+// =============================
+
 app.get('/', (req, res) => {
+
     res.json({
-        mensaje: 'API REST con Arquitectura Hexagonal'
+        mensaje:
+            'API REST CRUD con Arquitectura Hexagonal'
     });
+
 });
 
-// POST - Registrar usuario
+
+// =============================
+// CRUD DE USUARIOS
+// =============================
+
+// CREATE
 app.post(
     '/usuarios',
     userController.crearUsuario
 );
 
-// GET - Obtener usuarios
+
+// READ
 app.get(
     '/usuarios',
     userController.obtenerUsuarios
 );
 
-// PUT - Modificar usuario
+
+// UPDATE
 app.put(
     '/usuarios/:id',
-    userController.modificarUsuario
+    userController.actualizarUsuario
 );
 
-// DELETE - Eliminar usuario
+
+// DELETE
 app.delete(
     '/usuarios/:id',
     userController.eliminarUsuario
 );
 
-const PORT = process.env.PORT || 3000;
+
+// =============================
+// SERVIDOR
+// =============================
+
+const PORT =
+    process.env.PORT || 3000;
 
 app.listen(PORT, () => {
+
     console.log(
         `Servidor ejecutándose en http://localhost:${PORT}`
     );
+
 });

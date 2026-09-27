@@ -4,17 +4,9 @@ class UserController {
         this.userService = userService;
     }
 
-
-    // POST
     crearUsuario = async (req, res) => {
-
         try {
-
-            const {
-                nombre,
-                email,
-                password
-            } = req.body;
+            const { nombre, email, password } = req.body;
 
             const usuario =
                 await this.userService.crearUsuario(
@@ -24,13 +16,11 @@ class UserController {
                 );
 
             res.status(201).json({
-                mensaje:
-                    'Usuario registrado correctamente',
+                mensaje: 'Usuario registrado correctamente',
                 usuario
             });
 
         } catch (error) {
-
             res.status(400).json({
                 mensaje: error.message
             });
@@ -38,18 +28,14 @@ class UserController {
     };
 
 
-    // GET
     obtenerUsuarios = async (req, res) => {
-
         try {
-
             const usuarios =
                 await this.userService.obtenerUsuarios();
 
             res.status(200).json(usuarios);
 
         } catch (error) {
-
             res.status(500).json({
                 mensaje: error.message
             });
@@ -57,35 +43,24 @@ class UserController {
     };
 
 
-    // PUT
-    modificarUsuario = async (req, res) => {
-
+    actualizarUsuario = async (req, res) => {
         try {
-
             const { id } = req.params;
-
-            const {
-                nombre,
-                email,
-                password
-            } = req.body;
+            const { nombre, email } = req.body;
 
             const usuario =
-                await this.userService.modificarUsuario(
+                await this.userService.actualizarUsuario(
                     id,
                     nombre,
-                    email,
-                    password
+                    email
                 );
 
             res.status(200).json({
-                mensaje:
-                    'Usuario modificado correctamente',
+                mensaje: 'Usuario actualizado correctamente',
                 usuario
             });
 
         } catch (error) {
-
             res.status(400).json({
                 mensaje: error.message
             });
@@ -93,22 +68,16 @@ class UserController {
     };
 
 
-    // DELETE
     eliminarUsuario = async (req, res) => {
-
         try {
-
             const { id } = req.params;
 
-            await this.userService.eliminarUsuario(id);
+            const resultado =
+                await this.userService.eliminarUsuario(id);
 
-            res.status(200).json({
-                mensaje:
-                    'Usuario eliminado correctamente'
-            });
+            res.status(200).json(resultado);
 
         } catch (error) {
-
             res.status(400).json({
                 mensaje: error.message
             });
